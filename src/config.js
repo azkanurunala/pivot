@@ -19,7 +19,15 @@ export const PRO_FALLBACK_PRICE = '$4.99';   // shown when the store is offline
 
 export const isPlaceholder = (v) =>
   typeof v !== 'string' || v.startsWith('REPLACE_ME');
-export const IAP_CONFIGURED = !isPlaceholder(REVENUECAT_IOS_KEY);
+
+// The RevenueCat SDK only accepts real public platform keys: Apple keys start
+// with `appl_`, Google with `goog_`. Anything else (the current `test_` key, or
+// a placeholder) is treated as NON-configuring so it can never block the app —
+// the SDK simply isn't initialized and purchases degrade to the offline unlock
+// path. Paste a real `appl_` key and it activates automatically.
+export const isUsablePurchasesKey = (k) =>
+  typeof k === 'string' && (k.startsWith('appl_') || k.startsWith('goog_'));
+export const IAP_CONFIGURED = isUsablePurchasesKey(REVENUECAT_IOS_KEY);
 
 // ── Game Center (leaderboards) ────────────────────────────────────────
 // Pivot ranks the daily challenge by fewest bounces. One global board.

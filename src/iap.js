@@ -9,7 +9,7 @@
 import { Platform } from 'react-native';
 import {
   REVENUECAT_IOS_KEY, REVENUECAT_ANDROID_KEY, ENTITLEMENT_ID,
-  OFFERING_ID, PRO_PRODUCT_ID, PRO_FALLBACK_PRICE, isPlaceholder,
+  OFFERING_ID, PRO_PRODUCT_ID, PRO_FALLBACK_PRICE, isUsablePurchasesKey,
 } from './config';
 
 let configured = false;
@@ -29,7 +29,7 @@ export function initIAP(onProChange) {
   const P = Purchases();
   if (!P || configured) return;
   const key = platformKey();
-  if (isPlaceholder(key)) return;          // no key yet → stay a no-op
+  if (!isUsablePurchasesKey(key)) return;  // not a real appl_/goog_ key → stay a no-op (never blocks)
   try {
     P.configure({ apiKey: key });
     configured = true;
@@ -92,5 +92,5 @@ export async function presentCustomerCenter() {
 }
 
 export function isStoreAvailable() {
-  return Platform.OS === 'ios' && !!Purchases() && !isPlaceholder(platformKey());
+  return Platform.OS === 'ios' && !!Purchases() && isUsablePurchasesKey(platformKey());
 }

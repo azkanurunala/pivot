@@ -19,3 +19,6 @@ GIFT_CODES.txt
 # macOS / editors
 .DS_Store
 *.log
+
+# standalone GitHub Pages site (its own repo)
+site/
