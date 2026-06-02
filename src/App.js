@@ -236,35 +236,40 @@ function Game() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.void0 }}>
+    <View style={{ flex: 1, backgroundColor: theme.void0, alignItems: 'center' }}>
       <StatusBar barStyle={theme.dark ? 'light-content' : 'dark-content'} />
       <VoidBackdrop theme={theme} />
 
-      {!playing && (
-        <ScrollView
-          key={tab}
-          style={{ flex: 1 }}
-          contentContainerStyle={{ paddingTop: insets.top + 20, paddingBottom: insets.bottom + 110 }}
-          showsVerticalScrollIndicator={false}
-        >
-          {screens[tab]}
-        </ScrollView>
-      )}
-      {!playing && <BottomNav theme={theme} tab={tab} setTab={setTab} bottomInset={insets.bottom} />}
+      {/* On tablets the phone-first layout is centered in a max-width column so
+          it doesn't stretch and break on iPad's wide canvas. Phones (< 520) fill
+          the width unchanged. All overlays are absolute within this column. */}
+      <View style={{ flex: 1, width: '100%', maxWidth: 520, overflow: 'hidden' }}>
+        {!playing && (
+          <ScrollView
+            key={tab}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ paddingTop: insets.top + 20, paddingBottom: insets.bottom + 110 }}
+            showsVerticalScrollIndicator={false}
+          >
+            {screens[tab]}
+          </ScrollView>
+        )}
+        {!playing && <BottomNav theme={theme} tab={tab} setTab={setTab} bottomInset={insets.bottom} />}
 
-      {playing && (
-        <PlayScreen theme={theme} level={playing} skin={skin} settings={arenaSettings}
-          levels={PIVOT_LEVELS} onPlay={launchLevel} onExit={() => setPlaying(null)}
-          onWinPersist={onWinPersist} pro={proUnlocked} onPaywall={openPaywall}
-          topInset={insets.top} bottomInset={insets.bottom} />
-      )}
+        {playing && (
+          <PlayScreen theme={theme} level={playing} skin={skin} settings={arenaSettings}
+            levels={PIVOT_LEVELS} onPlay={launchLevel} onExit={() => setPlaying(null)}
+            onWinPersist={onWinPersist} pro={proUnlocked} onPaywall={openPaywall}
+            topInset={insets.top} bottomInset={insets.bottom} />
+        )}
 
-      {!booted && <TitleScreen theme={theme} skin={skin} onEnter={handleEnter} />}
-      {story && <StoryCutscene theme={theme} scene={story.data} sound={save.sound} onDone={story.onComplete} />}
-      {paywall && (
-        <Paywall theme={theme} price={proPrice} onClose={() => setPaywall(null)}
-          onPurchase={purchasePro} onRestore={restore} />
-      )}
+        {!booted && <TitleScreen theme={theme} skin={skin} onEnter={handleEnter} />}
+        {story && <StoryCutscene theme={theme} scene={story.data} sound={save.sound} onDone={story.onComplete} />}
+        {paywall && (
+          <Paywall theme={theme} price={proPrice} onClose={() => setPaywall(null)}
+            onPurchase={purchasePro} onRestore={restore} />
+        )}
+      </View>
     </View>
   );
 }
