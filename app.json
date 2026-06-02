@@ -7,20 +7,39 @@
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "backgroundColor": "#080B11",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.pivot.game",
-      "infoPlist": { "ITSAppUsesNonExemptEncryption": false },
-      "entitlements": { "com.apple.developer.game-center": true }
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "entitlements": {
+        "com.apple.developer.game-center": true
+      }
     },
-    "android": { "package": "com.pivot.game" },
+    "android": {
+      "package": "com.pivot.game"
+    },
     "plugins": [
       "expo-asset",
       "expo-font",
       "expo-status-bar",
-      ["expo-splash-screen", { "backgroundColor": "#080B11", "resizeMode": "contain" }]
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#080B11",
+          "resizeMode": "contain"
+        }
+      ]
     ],
-    "extra": { "eas": { "projectId": "<your-eas-project-id>" } }
+    "extra": {
+      "eas": {
+        "projectId": "7b1c142e-bdad-47a4-97ca-f93c14813671"
+      }
+    },
+    "owner": "azkanura"
   }
 }

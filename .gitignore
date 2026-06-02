@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# native (managed / CNG — regenerated from app.json)
+/ios
+/android
+
+# secrets & local
+GIFT_CODES.txt
+*.p8
+.env*.local
+
+# macOS / editors
+.DS_Store
+*.log

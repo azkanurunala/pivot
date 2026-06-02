@@ -40,7 +40,7 @@ export default function VoidBackdrop({ theme, intensity = 1, width = 402, height
         end={{ x: 0.5, y: 1 }}
         style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
       />
-      <Svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`}>
+      <Svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid slice">
         <Defs>
           {blobs.map((b, i) => (
             <RadialGradient key={i} id={`blob${i}`} cx="50%" cy="50%" r="50%">
