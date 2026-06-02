@@ -103,7 +103,7 @@ export default function PlayScreen({ theme, level, skin, settings, onExit, onWin
 
       {/* arena slab */}
       <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: minimal ? topInset + 16 : 4, paddingBottom: 8 }}>
-        <View style={{ flex: 1, borderRadius: 26, overflow: 'hidden', borderWidth: 1, borderColor: theme.hair2, ...(theme.dark ? { shadowColor: '#000', shadowOffset: { width: 0, height: 20 }, shadowOpacity: 0.55, shadowRadius: 30, elevation: 10 } : { shadowColor: 'rgba(40,50,30,0.6)', shadowOffset: { width: 0, height: 18 }, shadowOpacity: 0.22, shadowRadius: 24, elevation: 8 }) }}>
+        <View style={{ flex: 1, borderRadius: 26, overflow: 'hidden', borderWidth: 1, borderColor: theme.dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', ...(theme.dark ? { shadowColor: '#000', shadowOffset: { width: 0, height: 20 }, shadowOpacity: 0.55, shadowRadius: 30, elevation: 10 } : { shadowColor: 'rgba(40,50,30,0.6)', shadowOffset: { width: 0, height: 18 }, shadowOpacity: 0.22, shadowRadius: 24, elevation: 8 }) }}>
           <LinearGradient colors={[theme.slab0, theme.slab1]} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
           <PivotArena theme={theme} level={level} skin={skin} settings={playSettings} resetSignal={resetSignal} onResult={handleResult} onAimChange={setAngle} paused={!!result} />
           {/* corner ticks for slab framing */}
@@ -117,7 +117,7 @@ export default function PlayScreen({ theme, level, skin, settings, onExit, onWin
                 [c[1] > 0 ? 'top' : 'bottom']: 12,
                 borderTopWidth: c[1] > 0 ? 2 : 0, borderBottomWidth: c[1] < 0 ? 2 : 0,
                 borderLeftWidth: c[0] > 0 ? 2 : 0, borderRightWidth: c[0] < 0 ? 2 : 0,
-                borderColor: theme.accent + '22',
+                borderColor: theme.accent + '55',
               }}
             />
           ))}
