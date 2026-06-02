@@ -9,7 +9,7 @@
 // visual motif system (camera, grade, vignette, sparks, supernova) is intact.
 
 import React, { useRef, useState, useEffect } from 'react';
-import { View, Text, Pressable, Animated, Easing } from 'react-native';
+import { View, Text, Pressable, Animated, Easing, ScrollView } from 'react-native';
 import {
   Canvas, Picture, createPicture, Skia,
   PaintStyle, StrokeCap, TileMode, BlurStyle, BlendMode, ClipOp,
@@ -276,7 +276,6 @@ export default function StoryCutscene({ theme, scene, sound = true, onDone }) {
     <View
       style={{
         position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 60,
-        alignItems: 'center', justifyContent: 'center', paddingHorizontal: 26, paddingVertical: 28,
         backgroundColor: theme.void0, opacity: closing ? 0 : 1,
       }}
     >
@@ -288,9 +287,15 @@ export default function StoryCutscene({ theme, scene, sound = true, onDone }) {
         <Text style={[T.mono, { color: theme.ink3, fontSize: 11, letterSpacing: 1.5, textTransform: 'uppercase' }]}>Skip ›</Text>
       </Pressable>
 
+      {/* scrollable so the scene never clips on shorter screens */}
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 26, paddingTop: bars + 44, paddingBottom: bars + 30 }}
+        showsVerticalScrollIndicator={false}
+      >
       <Animated.View
         style={{
-          width: '100%', maxWidth: 230, aspectRatio: B.w / B.h,
+          width: '100%', maxWidth: 210, aspectRatio: B.w / B.h,
           opacity: mounted,
           transform: [{ scale: mounted.interpolate({ inputRange: [0, 1], outputRange: [0.94, 1] }) }],
         }}
@@ -323,6 +328,7 @@ export default function StoryCutscene({ theme, scene, sound = true, onDone }) {
           <Text style={[T.display, { color: theme.dark ? '#06231F' : '#fff', fontSize: 14 }]}>{data.cta || 'Continue'}</Text>
         </Pressable>
       </Animated.View>
+      </ScrollView>
     </View>
   );
 }

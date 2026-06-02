@@ -17,7 +17,7 @@ import { pvSolveAngle } from '../game/physics';
 
 const FAIL_THRESHOLD = 5;
 
-export default function PlayScreen({ theme, level, skin, settings, onExit, onWinPersist, levels, onPlay, topInset = 0, bottomInset = 0 }) {
+export default function PlayScreen({ theme, level, skin, settings, onExit, onWinPersist, levels, onPlay, pro = false, onPaywall, topInset = 0, bottomInset = 0 }) {
   const [resetSignal, setResetSignal] = useState(0);
   const [result, setResult] = useState(null);
   const [angle, setAngle] = useState(58);
@@ -187,8 +187,14 @@ export default function PlayScreen({ theme, level, skin, settings, onExit, onWin
               )}
             </View>
 
-            {/* progressive hints */}
-            {!win && fails >= FAIL_THRESHOLD && (
+            {/* progressive hints — a Pivot Pro feature; free users get a paywall nudge */}
+            {!win && fails >= FAIL_THRESHOLD && !pro && (
+              <Pressable onPress={() => onPaywall && onPaywall()} style={{ marginTop: 10, alignSelf: 'stretch', borderWidth: 1, borderColor: theme.gold + '55', borderRadius: 14, paddingVertical: 12, backgroundColor: theme.gold + '14', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
+                {PvIcon.crown(theme.gold, 16)}
+                <Text style={[T.display, { color: theme.ink, fontSize: 13.5 }]}>Unlock hints with Pivot Pro</Text>
+              </Pressable>
+            )}
+            {!win && fails >= FAIL_THRESHOLD && pro && (
               <View style={{ flexDirection: 'row', gap: 10, marginTop: 10, alignSelf: 'stretch' }}>
                 {!hintArmed && (
                   <Pressable onPress={() => retry(true)} style={{ flex: 1, borderWidth: 1, borderColor: theme.gold + '55', borderRadius: 14, paddingVertical: 12, backgroundColor: theme.gold + '14', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 }}>

@@ -202,11 +202,24 @@ export default function PivotArena({ theme, level, skin, settings, resetSignal, 
     const sideP = stroke(th.wallSide, PV_BOARD.wallT, true);
     const topP = stroke(th.wallTop, PV_BOARD.wallT, true);
     const edgeP = stroke(th.wallEdge, 1.5, true);
-    for (const w of sim.walls) {
-      cv.drawLine(w.x1, w.y1 + dz, w.x2, w.y2 + dz, sideP);
-      cv.drawLine(w.x1, w.y1, w.x2, w.y2, topP);
-      cv.drawLine(w.x1, w.y1 - PV_BOARD.wallT / 2 + 1, w.x2, w.y2 - PV_BOARD.wallT / 2 + 1, edgeP);
-    }
+    const drawWall = (x1, y1, x2, y2) => {
+      cv.drawLine(x1, y1 + dz, x2, y2 + dz, sideP);
+      cv.drawLine(x1, y1, x2, y2, topP);
+      cv.drawLine(x1, y1 - PV_BOARD.wallT / 2 + 1, x2, y2 - PV_BOARD.wallT / 2 + 1, edgeP);
+    };
+
+    // board boundary — the implicit reflective edges the ball bounces off.
+    // Rendered as a raised rim (same 2.5D look as walls) so the play area reads
+    // as enclosed instead of an invisible line. Inset by half the wall thickness
+    // so the full rim sits inside the clipped board and the ball rests against it.
+    const bw = PV_BOARD.wallT / 2;
+    const Bw = PV_BOARD.w, Bh = PV_BOARD.h;
+    drawWall(bw, bw, Bw - bw, bw);            // top
+    drawWall(bw, Bh - bw, Bw - bw, Bh - bw);  // bottom
+    drawWall(bw, bw, bw, Bh - bw);            // left
+    drawWall(Bw - bw, bw, Bw - bw, Bh - bw);  // right
+
+    for (const w of sim.walls) drawWall(w.x1, w.y1, w.x2, w.y2);
 
     // targets
     for (const t of sim.targets) {

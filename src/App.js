@@ -18,13 +18,13 @@ import {
   JetBrainsMono_500Medium, JetBrainsMono_600SemiBold,
 } from '@expo-google-fonts/jetbrains-mono';
 
-import { PIVOT_THEMES, PIVOT_SKINS, skinById } from './theme';
+import { PIVOT_THEMES, PIVOT_SKINS, skinById, ALL_SKIN_IDS } from './theme';
 import { LS, today } from './storage';
 import { PIVOT_LEVELS, pvGenerateDaily, pvDateSeed } from './game/levels';
 import { PV_STORY } from './game/story';
 import { isValidGiftCode } from './giftcodes';
 import { initIAP, getProStatus, restorePurchases, purchasePro as iapPurchasePro, getOfferingPrice, isStoreAvailable, presentCustomerCenter } from './iap';
-import { authenticateGameCenter, submitScore } from './leaderboard';
+import { authenticateGameCenter, submitScore, presentLeaderboard } from './leaderboard';
 import { FREE_LEVELS } from './config';
 
 import VoidBackdrop from './components/VoidBackdrop';
@@ -100,14 +100,20 @@ function Game() {
 
   const theme = PIVOT_THEMES[save.theme] || PIVOT_THEMES.night;
   const proUnlocked = save.proUnlocked || entitlementPro;
-  const skin = useMemo(() => skinById(save.skin), [save.skin]);
+  // ── single-package model: Pivot Pro unlocks EVERYTHING ──────────────
+  // skins (free users get only Cyan Core), the trajectory guide, and the
+  // in-game hints. Nothing is sold individually.
+  const ownedSkins = proUnlocked ? ALL_SKIN_IDS : ['cyan'];
+  const guideOwned = proUnlocked;
+  const equippedKey = ownedSkins.includes(save.skin) ? save.skin : 'cyan';
+  const skin = useMemo(() => skinById(equippedKey), [equippedKey]);
 
   const daily = useMemo(() => pvGenerateDaily(pvDateSeed()), []);
   const dailyToday = save.dailySeed === pvDateSeed() ? save.dailyResult : null;
 
   const arenaSettings = {
     gravity: 1, depth: 1, blur: theme.glassBlur,
-    guide: save.guide && save.guideOwned, minimal: save.minimal, sound: save.sound,
+    guide: save.guide && guideOwned, minimal: save.minimal, sound: save.sound,
   };
 
   // ── win persistence ─────────────────────────────────────────────────
@@ -132,12 +138,9 @@ function Game() {
   }, [persist]);
 
   // ── cosmetics & settings ────────────────────────────────────────────
-  const equipSkin = (key) => persist({ skin: key });
-  const buySkin = (key) => persist((prev) => ({
-    ...prev, skin: key,
-    ownedSkins: prev.ownedSkins.includes(key) ? prev.ownedSkins : [...prev.ownedSkins, key],
-  }));
-  const buyGuide = () => persist({ guideOwned: true, guide: true });
+  // Owned skins equip directly; anything locked opens the single Pivot Pro paywall.
+  const openPaywall = () => setPaywall(true);
+  const equipSkin = (key) => { if (ownedSkins.includes(key)) persist({ skin: key }); else openPaywall(); };
   const setSetting = (k, v) => persist({ [k]: v });
   const resetAll = () => { LS.remove(SAVE_KEY); setSave(defaultSave()); setPlaying(null); setTab('levels'); };
 
@@ -212,21 +215,22 @@ function Game() {
     levels: (
       <LevelSelectScreen theme={theme} levels={PIVOT_LEVELS} progress={save.progress} onPlay={launchLevel}
         seenStory={save.seenStory} onReplayStory={replayStory} proUnlocked={proUnlocked}
-        freeLevels={FREE_LEVELS} onPaywall={(lv) => setPaywall(lv || true)} />
+        freeLevels={FREE_LEVELS} onPaywall={(lv) => setPaywall(lv || true)} price={proPrice} />
     ),
     daily: (
       <DailyScreen theme={theme} daily={daily} dailyResult={dailyToday}
-        unlocked={save.progress.unlocked >= 5} onPlay={launchLevel} />
+        unlocked={save.progress.unlocked >= 5} onPlay={launchLevel}
+        onOpenLeaderboard={() => presentLeaderboard('daily')} />
     ),
     shop: (
-      <CosmeticsScreen theme={theme} skins={PIVOT_SKINS} ownedSkins={save.ownedSkins} currentSkin={save.skin}
-        onSelect={equipSkin} onBuy={buySkin} guideOwned={save.guideOwned} onBuyGuide={buyGuide}
-        proUnlocked={proUnlocked} onUnlockPro={() => setPaywall(true)} />
+      <CosmeticsScreen theme={theme} skins={PIVOT_SKINS} ownedSkins={ownedSkins} currentSkin={save.skin}
+        onSelect={equipSkin} onBuy={openPaywall} guideOwned={guideOwned} onBuyGuide={openPaywall}
+        proUnlocked={proUnlocked} onUnlockPro={openPaywall} price={proPrice} />
     ),
     settings: (
       <SettingsScreen theme={theme}
         settings={{ theme: save.theme, guide: save.guide, sound: save.sound, minimal: save.minimal }}
-        setSetting={setSetting} guideOwned={save.guideOwned} onReset={resetAll} onRedeem={redeem}
+        setSetting={setSetting} guideOwned={guideOwned} onReset={resetAll} onRedeem={redeem}
         proUnlocked={proUnlocked} onRestore={restoreFromSettings} onManage={managePurchases} />
     ),
   };
@@ -251,7 +255,8 @@ function Game() {
       {playing && (
         <PlayScreen theme={theme} level={playing} skin={skin} settings={arenaSettings}
           levels={PIVOT_LEVELS} onPlay={launchLevel} onExit={() => setPlaying(null)}
-          onWinPersist={onWinPersist} topInset={insets.top} bottomInset={insets.bottom} />
+          onWinPersist={onWinPersist} pro={proUnlocked} onPaywall={openPaywall}
+          topInset={insets.top} bottomInset={insets.bottom} />
       )}
 
       {!booted && <TitleScreen theme={theme} skin={skin} onEnter={handleEnter} />}

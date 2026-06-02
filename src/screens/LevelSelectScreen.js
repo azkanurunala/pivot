@@ -119,7 +119,7 @@ function ContinueCard({ theme, level, chapterName, tint, best, allDone, onPlay }
   );
 }
 
-function UnlockCard({ theme, onUnlock }) {
+function UnlockCard({ theme, onUnlock, price = '$4.99' }) {
   const onTint = theme.dark ? '#06231F' : '#fff';
   return (
     <View style={{ marginHorizontal: 22, marginBottom: 20, borderRadius: 20, overflow: 'hidden', backgroundColor: theme.glassHi, borderWidth: 1, borderColor: theme.gold + '66', padding: 16 }}>
@@ -134,7 +134,7 @@ function UnlockCard({ theme, onUnlock }) {
         </View>
       </View>
       <Pressable onPress={onUnlock} style={{ marginTop: 14, paddingVertical: 12, borderRadius: 12, backgroundColor: theme.gold, alignItems: 'center' }}>
-        <Text style={[T.displayBold, { color: onTint, fontSize: 14 }]}>Go Pro · $4.99</Text>
+        <Text style={[T.displayBold, { color: onTint, fontSize: 14 }]}>Go Pro · {price}</Text>
       </Pressable>
     </View>
   );
@@ -142,7 +142,7 @@ function UnlockCard({ theme, onUnlock }) {
 
 const chunk = (arr, n) => Array.from({ length: Math.ceil(arr.length / n) }, (_, i) => arr.slice(i * n, i * n + n));
 
-export default function LevelSelectScreen({ theme, levels, progress, onPlay, seenStory, onReplayStory, proUnlocked = true, freeLevels = 30, onPaywall }) {
+export default function LevelSelectScreen({ theme, levels, progress, onPlay, seenStory, onReplayStory, proUnlocked = true, freeLevels = 30, onPaywall, price = '$4.99' }) {
   const bestMap = progress.best || {};
   const cleared = Object.keys(bestMap).length;
   const totalStars = Object.values(bestMap).reduce((s, b) => s + (b.stars || 0), 0);
@@ -172,7 +172,7 @@ export default function LevelSelectScreen({ theme, levels, progress, onPlay, see
       />
 
       {heroPaywalled ? (
-        <UnlockCard theme={theme} onUnlock={() => onPaywall && onPaywall(heroLevel)} />
+        <UnlockCard theme={theme} price={price} onUnlock={() => onPaywall && onPaywall(heroLevel)} />
       ) : (
         <ContinueCard theme={theme} level={heroLevel} chapterName={(PV_CHAPTERS[heroChapterIdx] || {}).name || ''} tint={heroTint} best={bestMap[heroLevel.id]} allDone={allDone} onPlay={onPlay} />
       )}
@@ -227,22 +227,38 @@ export default function LevelSelectScreen({ theme, levels, progress, onPlay, see
               </View>
             </View>
 
-            <View style={{ paddingHorizontal: 22, paddingTop: 13, gap: 11 }}>
-              {chunk(chapterLevels, 3).map((row, ri) => (
-                <View key={ri} style={{ flexDirection: 'row', gap: 11 }}>
-                  {row.map((lv) => {
-                    const best = bestMap[lv.id];
-                    const paywalled = !proUnlocked && lv.id > freeLevels;
-                    const unlocked = !paywalled && lv.id <= progress.unlocked;
-                    const isCurrent = unlocked && !best;
-                    return (
-                      <LevelTile key={lv.id} lv={lv} num={lv.id} theme={theme} tint={tint} unlocked={unlocked} best={best} isCurrent={isCurrent} onPlay={onPlay} paywalled={paywalled} onPaywall={onPaywall} />
-                    );
-                  })}
-                  {row.length < 3 && Array.from({ length: 3 - row.length }).map((_, k) => <View key={`pad${k}`} style={{ flex: 1 }} />)}
-                </View>
-              ))}
-            </View>
+            {/* Only render the 30-tile grid for chapters you've reached — keeps
+                the list from laying out all 300 tiles at once. Locked chapters
+                collapse to a single row. */}
+            {chUnlocked ? (
+              <View style={{ paddingHorizontal: 22, paddingTop: 13, gap: 11 }}>
+                {chunk(chapterLevels, 3).map((row, ri) => (
+                  <View key={ri} style={{ flexDirection: 'row', gap: 11 }}>
+                    {row.map((lv) => {
+                      const best = bestMap[lv.id];
+                      const paywalled = !proUnlocked && lv.id > freeLevels;
+                      const unlocked = !paywalled && lv.id <= progress.unlocked;
+                      const isCurrent = unlocked && !best;
+                      return (
+                        <LevelTile key={lv.id} lv={lv} num={lv.id} theme={theme} tint={tint} unlocked={unlocked} best={best} isCurrent={isCurrent} onPlay={onPlay} paywalled={paywalled} onPaywall={onPaywall} />
+                      );
+                    })}
+                    {row.length < 3 && Array.from({ length: 3 - row.length }).map((_, k) => <View key={`pad${k}`} style={{ flex: 1 }} />)}
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <Pressable
+                onPress={() => chPaywalled && onPaywall && onPaywall(chapterLevels[0])}
+                style={{ marginHorizontal: 22, marginTop: 13, borderRadius: 14, padding: 15, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.glassDk, borderWidth: 1, borderColor: theme.hair2 }}
+              >
+                {PvIcon.lock(chPaywalled ? theme.gold : theme.ink3, 16)}
+                <Text style={[T.sans, { color: theme.ink3, fontSize: 12.5, flex: 1 }]}>
+                  {chPaywalled ? 'Unlock all chapters with Pivot Pro' : `Clear Level ${chapterLevels[0].id - 1} to open this chapter`}
+                </Text>
+                {chPaywalled && <Text style={[T.mono, { color: theme.gold, fontSize: 10 }]}>PRO ›</Text>}
+              </Pressable>
+            )}
           </View>
         );
       })}
