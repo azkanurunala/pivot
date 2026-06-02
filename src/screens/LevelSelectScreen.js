@@ -80,7 +80,8 @@ function HeroBoard({ level, theme, tint, size = 86 }) {
   return (
     <View
       style={{
-        width: size, borderRadius: 14, overflow: 'hidden', padding: 9,
+        width: size, aspectRatio: PV_BOARD.w / PV_BOARD.h,
+        borderRadius: 14, overflow: 'hidden', padding: 9,
         backgroundColor: theme.glassDk, borderWidth: 1, borderColor: theme.hair,
       }}
     >

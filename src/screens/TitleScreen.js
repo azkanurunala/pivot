@@ -14,9 +14,10 @@ export default function TitleScreen({ theme, skin, onEnter }) {
   const onAcc = theme.dark ? '#05221E' : '#fff';
   return (
     <Pressable onPress={onEnter} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 30, alignItems: 'center', justifyContent: 'center', padding: 40 }}>
-      {/* scrim: dim the levels behind so the title reads clearly */}
+      {/* scrim: a near-opaque full-screen blocker so the levels behind don't
+          bleed through and clash with the title. */}
       <LinearGradient
-        colors={[rgba(theme.void0, 0.4), rgba(theme.void0, 0.24), rgba(theme.void1, 0.08)]}
+        colors={[rgba(theme.void0, 0.99), rgba(theme.void0, 0.97), rgba(theme.void1, 0.95)]}
         locations={[0, 0.55, 1]}
         start={{ x: 0.5, y: 0.05 }}
         end={{ x: 0.5, y: 0.85 }}
