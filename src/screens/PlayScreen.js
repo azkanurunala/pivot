@@ -25,6 +25,7 @@ export default function PlayScreen({ theme, level, skin, settings, onExit, onWin
   const [fails, setFails] = useState(0);
   const [hintArmed, setHintArmed] = useState(false);
   const [solveAngle, setSolveAngle] = useState(null);
+  const [arena, setArena] = useState({ w: 0, h: 0 });
   const total = level.targets.length;
   const savedRef = useRef(false);
   const usedHintRef = useRef(false);
@@ -77,11 +78,13 @@ export default function PlayScreen({ theme, level, skin, settings, onExit, onWin
     <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, flexDirection: 'column' }}>
       {/* top HUD */}
       {!minimal && (
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: topInset + 14, paddingHorizontal: 18, paddingBottom: 8, zIndex: 4 }}>
-          <Pressable onPress={onExit}>
-            <Glass theme={theme} pad={0} radius={12} innerStyle={{ width: 38, height: 38, alignItems: 'center', justifyContent: 'center' }}>
-              {PvIcon.back(theme.ink)}
-            </Glass>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: Math.max(topInset, 20) + 12, paddingHorizontal: 18, paddingBottom: 8, zIndex: 4 }}>
+          <Pressable
+            onPress={onExit}
+            hitSlop={10}
+            style={{ width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.glass, borderWidth: 1, borderColor: theme.hair }}
+          >
+            {PvIcon.back(theme.ink)}
           </Pressable>
           <View style={{ flex: 1 }}>
             <Text style={[T.eyebrow, { color: theme.accent, fontSize: 10 }]}>{level.daily ? 'Daily' : 'Level ' + level.id}</Text>
@@ -101,27 +104,52 @@ export default function PlayScreen({ theme, level, skin, settings, onExit, onWin
         </View>
       )}
 
-      {/* arena slab */}
-      <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: minimal ? topInset + 16 : 4, paddingBottom: 8 }}>
-        <View style={{ flex: 1, borderRadius: 26, overflow: 'hidden', borderWidth: 1, borderColor: theme.dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', ...(theme.dark ? { shadowColor: '#000', shadowOffset: { width: 0, height: 20 }, shadowOpacity: 0.55, shadowRadius: 30, elevation: 10 } : { shadowColor: 'rgba(40,50,30,0.6)', shadowOffset: { width: 0, height: 18 }, shadowOpacity: 0.22, shadowRadius: 24, elevation: 8 }) }}>
-          <LinearGradient colors={[theme.slab0, theme.slab1]} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
-          <PivotArena theme={theme} level={level} skin={skin} settings={playSettings} resetSignal={resetSignal} onResult={handleResult} onAimChange={setAngle} paused={!!result} />
-          {/* corner ticks for slab framing */}
-          {[[1, 1], [-1, 1], [1, -1], [-1, -1]].map((c, i) => (
-            <View
-              key={i}
-              pointerEvents="none"
-              style={{
-                position: 'absolute', width: 14, height: 14,
-                [c[0] > 0 ? 'left' : 'right']: 12,
-                [c[1] > 0 ? 'top' : 'bottom']: 12,
-                borderTopWidth: c[1] > 0 ? 2 : 0, borderBottomWidth: c[1] < 0 ? 2 : 0,
-                borderLeftWidth: c[0] > 0 ? 2 : 0, borderRightWidth: c[0] < 0 ? 2 : 0,
-                borderColor: theme.accent + '55',
-              }}
-            />
-          ))}
-        </View>
+      {/* back button always available, even when Minimal UI hides the HUD */}
+      {minimal && (
+        <Pressable
+          onPress={onExit}
+          hitSlop={10}
+          style={{ position: 'absolute', top: Math.max(topInset, 20) + 10, left: 16, zIndex: 6, width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.glass, borderWidth: 1, borderColor: theme.hair }}
+        >
+          {PvIcon.back(theme.ink)}
+        </Pressable>
+      )}
+
+      {/* arena slab — sized to the board's aspect ratio and centered, so a tall
+          screen (e.g. iPad) shows a proper board panel instead of a big empty box. */}
+      <View
+        style={{ flex: 1, paddingHorizontal: 16, paddingTop: minimal ? topInset + 16 : 4, paddingBottom: 8, alignItems: 'center', justifyContent: 'center' }}
+        onLayout={(e) => setArena({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}
+      >
+        {(() => {
+          const padH = 16, padTop = minimal ? topInset + 16 : 4, padBot = 8;
+          const availW = arena.w - padH * 2, availH = arena.h - padTop - padBot;
+          if (availW <= 0 || availH <= 0) return null;
+          const ar = PV_BOARD.w / PV_BOARD.h;
+          let w = availW, h = w / ar;
+          if (h > availH) { h = availH; w = h * ar; }
+          return (
+            <View style={{ width: w, height: h, borderRadius: 26, overflow: 'hidden', borderWidth: 1, borderColor: theme.dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', ...(theme.dark ? { shadowColor: '#000', shadowOffset: { width: 0, height: 20 }, shadowOpacity: 0.55, shadowRadius: 30, elevation: 10 } : { shadowColor: 'rgba(40,50,30,0.6)', shadowOffset: { width: 0, height: 18 }, shadowOpacity: 0.22, shadowRadius: 24, elevation: 8 }) }}>
+              <LinearGradient colors={[theme.slab0, theme.slab1]} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
+              <PivotArena theme={theme} level={level} skin={skin} settings={playSettings} resetSignal={resetSignal} onResult={handleResult} onAimChange={setAngle} paused={!!result} />
+              {/* corner ticks for slab framing */}
+              {[[1, 1], [-1, 1], [1, -1], [-1, -1]].map((c, i) => (
+                <View
+                  key={i}
+                  pointerEvents="none"
+                  style={{
+                    position: 'absolute', width: 14, height: 14,
+                    [c[0] > 0 ? 'left' : 'right']: 12,
+                    [c[1] > 0 ? 'top' : 'bottom']: 12,
+                    borderTopWidth: c[1] > 0 ? 2 : 0, borderBottomWidth: c[1] < 0 ? 2 : 0,
+                    borderLeftWidth: c[0] > 0 ? 2 : 0, borderRightWidth: c[0] < 0 ? 2 : 0,
+                    borderColor: theme.accent + '55',
+                  }}
+                />
+              ))}
+            </View>
+          );
+        })()}
       </View>
 
       {/* bottom aim bar */}

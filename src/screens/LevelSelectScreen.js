@@ -3,7 +3,7 @@
 // level looks distinct, plus its number and earned stars. Ported 1:1.
 
 import React from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, useWindowDimensions } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import Glass from '../components/Glass';
 import ScreenHead from '../components/ScreenHead';
@@ -144,6 +144,8 @@ function UnlockCard({ theme, onUnlock, price = '$4.99' }) {
 const chunk = (arr, n) => Array.from({ length: Math.ceil(arr.length / n) }, (_, i) => arr.slice(i * n, i * n + n));
 
 export default function LevelSelectScreen({ theme, levels, progress, onPlay, seenStory, onReplayStory, proUnlocked = true, freeLevels = 30, onPaywall, price = '$4.99' }) {
+  const { width } = useWindowDimensions();
+  const cols = Math.max(3, Math.floor((width - 44) / 130)); // ~130px tiles; 3 on phones, more on iPad
   const bestMap = progress.best || {};
   const cleared = Object.keys(bestMap).length;
   const totalStars = Object.values(bestMap).reduce((s, b) => s + (b.stars || 0), 0);
@@ -233,7 +235,7 @@ export default function LevelSelectScreen({ theme, levels, progress, onPlay, see
                 collapse to a single row. */}
             {chUnlocked ? (
               <View style={{ paddingHorizontal: 22, paddingTop: 13, gap: 11 }}>
-                {chunk(chapterLevels, 3).map((row, ri) => (
+                {chunk(chapterLevels, cols).map((row, ri) => (
                   <View key={ri} style={{ flexDirection: 'row', gap: 11 }}>
                     {row.map((lv) => {
                       const best = bestMap[lv.id];
@@ -244,7 +246,7 @@ export default function LevelSelectScreen({ theme, levels, progress, onPlay, see
                         <LevelTile key={lv.id} lv={lv} num={lv.id} theme={theme} tint={tint} unlocked={unlocked} best={best} isCurrent={isCurrent} onPlay={onPlay} paywalled={paywalled} onPaywall={onPaywall} />
                       );
                     })}
-                    {row.length < 3 && Array.from({ length: 3 - row.length }).map((_, k) => <View key={`pad${k}`} style={{ flex: 1 }} />)}
+                    {row.length < cols && Array.from({ length: cols - row.length }).map((_, k) => <View key={`pad${k}`} style={{ flex: 1 }} />)}
                   </View>
                 ))}
               </View>

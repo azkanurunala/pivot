@@ -12,6 +12,7 @@
     ],
     "ios": {
       "supportsTablet": true,
+      "requireFullScreen": true,
       "bundleIdentifier": "com.pivot.game",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
@@ -33,7 +34,8 @@
           "backgroundColor": "#080B11",
           "resizeMode": "contain"
         }
-      ]
+      ],
+      "./plugins/withIpadPortrait"
     ],
     "extra": {
       "eas": {

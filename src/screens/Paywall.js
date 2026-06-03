@@ -2,7 +2,7 @@
 // wires onPurchase/onRestore to the IAP layer. Ported 1:1 from the design.
 
 import React, { useRef, useEffect } from 'react';
-import { View, Text, Pressable, Animated, Easing } from 'react-native';
+import { View, Text, Pressable, Animated, Easing, Linking } from 'react-native';
 import Glass from '../components/Glass';
 import { PvIcon } from '../components/Icons';
 import { T } from '../components/typography';
@@ -58,6 +58,14 @@ export default function Paywall({ theme, onClose, onPurchase, onRestore, price =
           <Pressable onPress={onRestore} style={{ marginTop: 10, paddingVertical: 8, alignItems: 'center' }}>
             <Text style={[T.sansSemi, { color: theme.ink2, fontSize: 12.5 }]}>Restore purchase</Text>
           </Pressable>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 18, marginTop: 6 }}>
+            <Pressable onPress={() => Linking.openURL('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')}>
+              <Text style={[T.sans, { color: theme.ink3, fontSize: 11, textDecorationLine: 'underline' }]}>Terms of Use</Text>
+            </Pressable>
+            <Pressable onPress={() => Linking.openURL('https://azkanurunala.github.io/pivot-site/privacy.html')}>
+              <Text style={[T.sans, { color: theme.ink3, fontSize: 11, textDecorationLine: 'underline' }]}>Privacy Policy</Text>
+            </Pressable>
+          </View>
           <Text style={[T.mono, { textAlign: 'center', color: theme.ink3, fontSize: 8.5, marginTop: 10, letterSpacing: 1.5 }]}>SECURE PURCHASE · POWERED BY REVENUECAT</Text>
         </View>
       </Animated.View>

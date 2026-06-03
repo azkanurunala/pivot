@@ -4,7 +4,7 @@
 // individually — every locked item opens the Pivot Pro paywall.
 
 import React from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, useWindowDimensions } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import Glass, { Chip } from '../components/Glass';
 import ScreenHead from '../components/ScreenHead';
@@ -15,6 +15,9 @@ import { PRO_FALLBACK_PRICE } from '../config';
 
 export default function CosmeticsScreen({ theme, skins, ownedSkins, currentSkin, onSelect, onBuy, guideOwned, onBuyGuide, proUnlocked, onUnlockPro, price = PRO_FALLBACK_PRICE }) {
   const onGold = theme.dark ? '#221603' : '#fff';
+  const { width } = useWindowDimensions();
+  const cols = Math.max(2, Math.floor(width / 210));      // 2 on phones, more on iPad
+  const colW = `${100 / cols - 2}%`;
 
   return (
     <View style={{ paddingBottom: 24 }}>
@@ -70,7 +73,7 @@ export default function CosmeticsScreen({ theme, skins, ownedSkins, currentSkin,
                 pad={14}
                 tone={active ? 'hi' : 'base'}
                 onPress={() => (owned ? onSelect(key) : onBuy(key))}
-                style={{ width: '47%', flexGrow: 1 }}
+                style={{ width: colW, flexGrow: 1 }}
                 innerStyle={{ borderColor: active ? theme.accent + '88' : theme.hair }}
               >
                 {!owned && (

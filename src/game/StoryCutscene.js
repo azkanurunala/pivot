@@ -295,9 +295,9 @@ export default function StoryCutscene({ theme, scene, sound = true, onDone }) {
       >
       <Animated.View
         style={{
-          width: '100%', maxWidth: 210, aspectRatio: B.w / B.h,
-          opacity: mounted,
-          transform: [{ scale: mounted.interpolate({ inputRange: [0, 1], outputRange: [0.94, 1] }) }],
+          width: 220, height: Math.round(220 * B.h / B.w),   // fixed size — avoids Yoga sizing the
+          opacity: mounted,                                    // canvas from full width on iPad and
+          transform: [{ scale: mounted.interpolate({ inputRange: [0, 1], outputRange: [0.94, 1] }) }],  // pushing the narration off-screen
         }}
       >
         <Canvas style={{ flex: 1 }}>

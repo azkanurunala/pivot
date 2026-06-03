@@ -236,14 +236,14 @@ function Game() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.void0, alignItems: 'center' }}>
+    <View style={{ flex: 1, backgroundColor: theme.void0 }}>
       <StatusBar barStyle={theme.dark ? 'light-content' : 'dark-content'} />
       <VoidBackdrop theme={theme} />
 
-      {/* On tablets the phone-first layout is centered in a max-width column so
-          it doesn't stretch and break on iPad's wide canvas. Phones (< 520) fill
-          the width unchanged. All overlays are absolute within this column. */}
-      <View style={{ flex: 1, width: '100%', maxWidth: 520, overflow: 'hidden' }}>
+      {/* Full-bleed: content fills the full screen width (incl. iPad). The level
+          and shop grids adapt their column count to the width (see those screens)
+          so a wide canvas looks intentional rather than stretched. */}
+      <View style={{ flex: 1, width: '100%' }}>
         {!playing && (
           <ScrollView
             key={tab}
