@@ -13,7 +13,7 @@ export const REVENUECAT_ANDROID_KEY = 'REPLACE_ME_goog_xxxxxxxx';
 export const ENTITLEMENT_ID = 'Pivot Pro';   // MUST match the RevenueCat dashboard exactly
 export const OFFERING_ID = null;             // null = use the "current" offering
 export const PRO_PRODUCT_ID = 'pivot_lifetime';  // non-consumable lifetime unlock (matches App Store Connect + RevenueCat)
-export const PRO_FALLBACK_PRICE = '$4.99';   // shown when the store is offline
+export const PRO_FALLBACK_PRICE = '$2.99';   // shown when the store is offline
 
 export const isPlaceholder = (v) =>
   typeof v !== 'string' || v.startsWith('REPLACE_ME');
