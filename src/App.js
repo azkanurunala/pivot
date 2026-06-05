@@ -25,6 +25,7 @@ import { PV_STORY } from './game/story';
 import { isValidGiftCode } from './giftcodes';
 import { initIAP, getProStatus, restorePurchases, purchasePro as iapPurchasePro, getOfferingPrice, isStoreAvailable, presentCustomerCenter } from './iap';
 import { authenticateGameCenter, submitScore, presentLeaderboard } from './leaderboard';
+import { initAudio, setSoundEnabled } from './audio';
 import { FREE_LEVELS } from './config';
 
 import VoidBackdrop from './components/VoidBackdrop';
@@ -88,6 +89,13 @@ function Game() {
     })();
     return () => { alive = false; };
   }, []);
+
+  // ── audio: preload once, then mirror the Sound setting (SFX + music loop) ──
+  useEffect(() => {
+    let alive = true;
+    (async () => { await initAudio(); if (alive && loaded) setSoundEnabled(save.sound); })();
+    return () => { alive = false; };
+  }, [loaded, save.sound]);
 
   // persist the whole save blob whenever it changes (after the initial load)
   const persist = useCallback((next) => {

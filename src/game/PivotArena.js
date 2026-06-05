@@ -18,6 +18,7 @@ import {
 } from '@shopify/react-native-skia';
 import { PV_BOARD } from './levels';
 import { pvStep, pvGhost, pvParams } from './physics';
+import { playSfx } from '../audio';
 
 const nowMs = () => (global.performance && performance.now ? performance.now() : Date.now());
 const col = (s) => Skia.Color(s);
@@ -94,6 +95,7 @@ export default function PivotArena({ theme, level, skin, settings, resetSignal, 
     b.vy = -Math.sin(a) * levelRef.current.speed;
     sim.startMs = nowMs();
     sim.bounces = 0;
+    playSfx('launch');
     phaseRef.current = 'fly';
   };
 
@@ -132,9 +134,11 @@ export default function PivotArena({ theme, level, skin, settings, resetSignal, 
         const prevHits = sim.targets.filter((t) => t.hit).length;
         const bn = pvStep(sim.ball, sim.targets, sim.walls, PV_BOARD, P, dt);
         sim.bounces += bn;
+        if (bn > 0) playSfx('bounce');
         sim.t += dt;
         const nowHits = sim.targets.filter((t) => t.hit).length;
         if (nowHits > prevHits) {
+          playSfx('hit');
           for (const t of sim.targets) {
             if (t.hit && t.pop === 0) {
               t.pop = 0.001;
@@ -146,6 +150,7 @@ export default function PivotArena({ theme, level, skin, settings, resetSignal, 
         if (sim.trail.length > 18) sim.trail.shift();
         if (sim.targets.every((t) => t.hit)) {
           phaseRef.current = 'win';
+          playSfx('win');
           onResultRef.current && onResultRef.current({
             win: true, bounces: sim.bounces, hits: nowHits, total: sim.targets.length,
             angle: Math.round(aimRef.current.angle), durationMs: now - sim.startMs, par: L.par,

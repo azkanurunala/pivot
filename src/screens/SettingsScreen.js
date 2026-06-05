@@ -81,7 +81,7 @@ export default function SettingsScreen({ theme, settings, setSetting, guideOwned
         <Text style={[T.eyebrow, { color: theme.ink3, paddingHorizontal: 4, paddingBottom: 10, fontSize: 10 }]}>Gameplay</Text>
         <Glass theme={theme} radius={18} pad={4} style={{ marginBottom: 16 }}>
           <SettingsRow theme={theme} label="Trajectory guide" sub={guideOwned ? 'Show ghost path before launch' : 'Included with Pivot Pro'} control={guideOwned ? <PvSwitch theme={theme} on={settings.guide} onToggle={() => setSetting('guide', !settings.guide)} /> : <Text style={[T.monoSemi, { color: theme.gold, fontSize: 11, letterSpacing: 1 }]}>PRO</Text>} />
-          <SettingsRow theme={theme} label="Sound" sub="Bounce & target SFX" control={<PvSwitch theme={theme} on={settings.sound} onToggle={() => setSetting('sound', !settings.sound)} />} last />
+          <SettingsRow theme={theme} label="Sound" sub="Music & sound effects" control={<PvSwitch theme={theme} on={settings.sound} onToggle={() => setSetting('sound', !settings.sound)} />} last />
         </Glass>
 
         <Text style={[T.eyebrow, { color: theme.ink3, paddingHorizontal: 4, paddingBottom: 10, fontSize: 10 }]}>Appearance</Text>

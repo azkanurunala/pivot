@@ -35,7 +35,8 @@
           "resizeMode": "contain"
         }
       ],
-      "./plugins/withIpadPortrait"
+      "./plugins/withIpadPortrait",
+      "expo-audio"
     ],
     "extra": {
       "eas": {
