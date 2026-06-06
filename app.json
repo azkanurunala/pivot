@@ -2,7 +2,7 @@
   "expo": {
     "name": "Pivot",
     "slug": "pivot",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "icon": "./assets/icon.png",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
