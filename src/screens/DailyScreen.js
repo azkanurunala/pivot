@@ -1,19 +1,32 @@
 // DailyScreen.js — the procedural daily board. Your run is recorded locally and
-// submitted to Game Center (fewest bounces wins); global ranks open in the native
-// Game Center UI. Resets at midnight. No fabricated competitors.
+// submitted to Game Center (fewest bounces wins); the global ranking below is
+// loaded LIVE from Apple Game Center (no fabricated competitors). Resets at
+// midnight. The board's Game Center sort order must be Low-to-High so the
+// fewest-bounces run ranks #1.
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import Glass, { Chip } from '../components/Glass';
 import ScreenHead from '../components/ScreenHead';
 import { PvIcon } from '../components/Icons';
 import { T } from '../components/typography';
 
-export default function DailyScreen({ theme, daily, dailyResult, onPlay, unlocked, onOpenLeaderboard }) {
+export default function DailyScreen({ theme, daily, dailyResult, onPlay, unlocked, onOpenLeaderboard, loadScores }) {
   const now = new Date();
   const ms = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1) - now;
   const hrs = Math.floor(ms / 3.6e6), mins = Math.floor((ms % 3.6e6) / 6e4);
   const onAcc = theme.dark ? '#05221E' : '#fff';
+
+  const [rows, setRows] = useState(null); // null = loading, [] = none yet
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try { const r = loadScores ? await loadScores() : []; if (alive) setRows(Array.isArray(r) ? r : []); }
+      catch (e) { if (alive) setRows([]); }
+    })();
+    return () => { alive = false; };
+  }, [loadScores, dailyResult]);
 
   return (
     <View style={{ paddingBottom: 24 }}>
@@ -39,8 +52,9 @@ export default function DailyScreen({ theme, daily, dailyResult, onPlay, unlocke
           {!unlocked && <Text style={[T.mono, { color: theme.gold, fontSize: 10, marginTop: 12 }]}>Unlocks after Level 5</Text>}
         </Glass>
 
+        {/* your local run */}
         <Text style={[T.eyebrow, { color: theme.ink3, paddingHorizontal: 4, paddingBottom: 10, fontSize: 10 }]}>Your run</Text>
-        <Glass theme={theme} radius={18} pad={16}>
+        <Glass theme={theme} radius={18} pad={16} style={{ marginBottom: 16 }}>
           {dailyResult ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <View style={{ width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.accent + '1F', borderWidth: 1, borderColor: theme.accent + '44' }}>
@@ -60,9 +74,30 @@ export default function DailyScreen({ theme, daily, dailyResult, onPlay, unlocke
           )}
         </Glass>
 
+        {/* live global ranking from Game Center */}
+        <Text style={[T.eyebrow, { color: theme.ink3, paddingHorizontal: 4, paddingBottom: 10, fontSize: 10 }]}>Leaderboard · Global</Text>
+        <Glass theme={theme} radius={18} pad={6}>
+          {rows === null ? (
+            <Text style={[T.sans, { color: theme.ink3, fontSize: 12.5, textAlign: 'center', paddingVertical: 16 }]}>Loading ranks…</Text>
+          ) : rows.length === 0 ? (
+            <View style={{ paddingVertical: 16, paddingHorizontal: 12, alignItems: 'center' }}>
+              <Text style={[T.sans, { color: theme.ink2, fontSize: 13, textAlign: 'center' }]}>No global scores yet — be the first.</Text>
+              <Text style={[T.sans, { color: theme.ink3, fontSize: 11.5, textAlign: 'center', marginTop: 4 }]}>Ranks come from Apple Game Center (iOS, signed in). New boards can take a little while to populate.</Text>
+            </View>
+          ) : (
+            rows.map((r, i) => (
+              <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 11, paddingHorizontal: 12, borderRadius: 12, borderBottomWidth: i < rows.length - 1 ? 1 : 0, borderBottomColor: theme.hair2, backgroundColor: r.me ? theme.accent + '14' : 'transparent' }}>
+                <Text style={[T.num, { width: 22, color: r.rank === 1 ? theme.gold : theme.ink3, fontSize: 14 }]}>{r.rank ?? i + 1}</Text>
+                <Text numberOfLines={1} style={[r.me ? T.sansBold : T.sans, { flex: 1, color: r.me ? theme.accent : theme.ink, fontSize: 14 }]}>{r.name || 'Player'}{r.me ? ' (you)' : ''}</Text>
+                <Text style={[T.num, { color: theme.ink2, fontSize: 14 }]}>{r.score}<Text style={{ color: theme.ink3, fontSize: 11 }}>b</Text></Text>
+              </View>
+            ))
+          )}
+        </Glass>
+
         <Pressable onPress={() => onOpenLeaderboard && onOpenLeaderboard()} style={{ marginTop: 12, borderRadius: 14, paddingVertical: 13, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8, borderWidth: 1, borderColor: theme.hair, backgroundColor: theme.glass }}>
           {PvIcon.crown(theme.gold, 16)}
-          <Text style={[T.sansSemi, { color: theme.ink, fontSize: 13 }]}>View global ranks in Game Center</Text>
+          <Text style={[T.sansSemi, { color: theme.ink, fontSize: 13 }]}>Open full leaderboard in Game Center</Text>
         </Pressable>
         <Text style={[T.mono, { color: theme.ink3, fontSize: 9.5, textAlign: 'center', marginTop: 10, letterSpacing: 0.5 }]}>RANKED BY FEWEST BOUNCES · iOS GAME CENTER</Text>
       </View>

@@ -24,8 +24,8 @@ import { PIVOT_LEVELS, pvGenerateDaily, pvDateSeed } from './game/levels';
 import { PV_STORY } from './game/story';
 import { isValidGiftCode } from './giftcodes';
 import { initIAP, getProStatus, restorePurchases, purchasePro as iapPurchasePro, getOfferingPrice, isStoreAvailable, presentCustomerCenter } from './iap';
-import { authenticateGameCenter, submitScore, presentLeaderboard } from './leaderboard';
-import { initAudio, setSoundEnabled } from './audio';
+import { authenticateGameCenter, submitScore, presentLeaderboard, loadTopScores } from './leaderboard';
+import { initAudio, setSfxEnabled, setMusicEnabled } from './audio';
 import { FREE_LEVELS } from './config';
 
 import VoidBackdrop from './components/VoidBackdrop';
@@ -46,7 +46,7 @@ function defaultSave() {
   return {
     progress: { unlocked: 1, best: {} },
     ownedSkins: ['cyan'], skin: 'cyan', theme: 'night',
-    guideOwned: false, guide: false, sound: true, minimal: false,
+    guideOwned: false, guide: false, sound: true, music: false, minimal: false,
     dailyResult: null, dailySeed: null,
     seenIntro: false, seenStory: {}, proUnlocked: false,
   };
@@ -90,12 +90,15 @@ function Game() {
     return () => { alive = false; };
   }, []);
 
-  // ── audio: preload once, then mirror the Sound setting (SFX + music loop) ──
+  // ── audio: preload once, then mirror the SFX + Music settings independently ──
   useEffect(() => {
     let alive = true;
-    (async () => { await initAudio(); if (alive && loaded) setSoundEnabled(save.sound); })();
+    (async () => {
+      await initAudio();
+      if (alive && loaded) { setSfxEnabled(save.sound); setMusicEnabled(save.music); }
+    })();
     return () => { alive = false; };
-  }, [loaded, save.sound]);
+  }, [loaded, save.sound, save.music]);
 
   // persist the whole save blob whenever it changes (after the initial load)
   const persist = useCallback((next) => {
@@ -228,7 +231,8 @@ function Game() {
     daily: (
       <DailyScreen theme={theme} daily={daily} dailyResult={dailyToday}
         unlocked={save.progress.unlocked >= 5} onPlay={launchLevel}
-        onOpenLeaderboard={() => presentLeaderboard('daily')} />
+        onOpenLeaderboard={() => presentLeaderboard('daily')}
+        loadScores={() => loadTopScores('daily', 50)} />
     ),
     shop: (
       <CosmeticsScreen theme={theme} skins={PIVOT_SKINS} ownedSkins={ownedSkins} currentSkin={save.skin}
@@ -237,7 +241,7 @@ function Game() {
     ),
     settings: (
       <SettingsScreen theme={theme}
-        settings={{ theme: save.theme, guide: save.guide, sound: save.sound, minimal: save.minimal }}
+        settings={{ theme: save.theme, guide: save.guide, sound: save.sound, music: save.music, minimal: save.minimal }}
         setSetting={setSetting} guideOwned={guideOwned} onReset={resetAll} onRedeem={redeem}
         proUnlocked={proUnlocked} onRestore={restoreFromSettings} onManage={managePurchases} />
     ),

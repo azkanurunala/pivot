@@ -21,7 +21,8 @@ const POOL = 3;              // players per SFX → allows rapid overlap (e.g. b
 const SFX_VOL = 0.7;
 const MUSIC_VOL = 0.3;
 
-let enabled = true;
+let sfxEnabled = true;       // driven by the "Sound effects" setting
+let musicEnabled = true;     // driven by the "Music" setting
 let ready = false;
 const pools = {};            // name → { i, players: [] }
 let music = null;
@@ -51,16 +52,21 @@ export async function initAudio() {
   } catch (e) {}
 }
 
-// Turn all audio on/off (driven by the Sound setting). Starts/stops the loop.
-export function setSoundEnabled(on) {
-  enabled = !!on;
-  if (enabled) startMusic();
+// Sound effects on/off (independent of music).
+export function setSfxEnabled(on) {
+  sfxEnabled = !!on;
+}
+
+// Music on/off (independent of SFX) — starts/stops the loop.
+export function setMusicEnabled(on) {
+  musicEnabled = !!on;
+  if (musicEnabled) startMusic();
   else stopMusic();
 }
 
 // Fire a one-shot effect: 'tap' | 'launch' | 'bounce' | 'hit' | 'win'.
 export function playSfx(name, vol) {
-  if (!enabled || !ready) return;
+  if (!sfxEnabled || !ready) return;
   const pool = pools[name];
   if (!pool) return;
   try {
@@ -73,7 +79,7 @@ export function playSfx(name, vol) {
 }
 
 export function startMusic() {
-  if (!enabled || !ready || !music) return;
+  if (!musicEnabled || !ready || !music) return;
   try { music.play(); } catch (e) {}
 }
 
