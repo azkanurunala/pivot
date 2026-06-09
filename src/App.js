@@ -22,7 +22,6 @@ import { PIVOT_THEMES, PIVOT_SKINS, skinById, ALL_SKIN_IDS } from './theme';
 import { LS, today } from './storage';
 import { PIVOT_LEVELS, pvGenerateDaily, pvDateSeed } from './game/levels';
 import { PV_STORY } from './game/story';
-import { isValidGiftCode } from './giftcodes';
 import { initIAP, getProStatus, restorePurchases, purchasePro as iapPurchasePro, getOfferingPrice, isStoreAvailable, presentCustomerCenter } from './iap';
 import { authenticateGameCenter, submitScore, presentLeaderboard, loadTopScores } from './leaderboard';
 import { initAudio, setSfxEnabled, setMusicEnabled } from './audio';
@@ -155,13 +154,6 @@ function Game() {
   const setSetting = (k, v) => persist({ [k]: v });
   const resetAll = () => { LS.remove(SAVE_KEY); setSave(defaultSave()); setPlaying(null); setTab('levels'); };
 
-  const redeem = (code) => {
-    if (!isValidGiftCode(code)) return false;
-    persist({ proUnlocked: true });
-    if (paywall) setPaywall(null);
-    return true;
-  };
-
   // ── story / cutscenes ───────────────────────────────────────────────
   const handleEnter = () => {
     if (!save.seenIntro) {
@@ -242,7 +234,7 @@ function Game() {
     settings: (
       <SettingsScreen theme={theme}
         settings={{ theme: save.theme, guide: save.guide, sound: save.sound, music: save.music, minimal: save.minimal }}
-        setSetting={setSetting} guideOwned={guideOwned} onReset={resetAll} onRedeem={redeem}
+        setSetting={setSetting} guideOwned={guideOwned} onReset={resetAll}
         proUnlocked={proUnlocked} onRestore={restoreFromSettings} onManage={managePurchases} />
     ),
   };

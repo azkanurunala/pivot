@@ -35,7 +35,6 @@ src/
 ├── storage.js          # AsyncStorage wrapper (LS) + today()
 ├── iap.js              # RevenueCat hub (degrades to no-op without keys)
 ├── leaderboard.js      # Game Center wrapper (degrades to no-op)
-├── giftcodes.js        # hash-based gift-code unlock
 ├── game/
 │   ├── physics.js      # pure deterministic sim core (shared by engine/solver/story)
 │   ├── levels.js       # 300 levels + the validated daily generator
@@ -66,6 +65,3 @@ The code is complete and runs. Before shipping you must do the **manual portal w
   form (Purchases + Game Center; no ads/tracking), screenshots, age rating 4+.
 - **Privacy/Support** — host `docs/` on GitHub Pages and set the URLs.
 - **Icon** — add `assets/icon.png` (1024×1024, no alpha) before `eas build`.
-
-Gift codes: run `node scripts/gen-gift-codes.js` to (re)generate
-`src/giftcodes.js` (hashes, committed) + `GIFT_CODES.txt` (plaintext, gitignored).

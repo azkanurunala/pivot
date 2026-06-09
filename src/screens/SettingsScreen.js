@@ -1,8 +1,8 @@
 // SettingsScreen.js — gameplay toggles, the grouped theme picker (Dark/Light),
-// minimal UI, redeem gift code, and reset. Ported 1:1 from the design.
+// minimal UI, purchases, and reset. Ported 1:1 from the design.
 
 import React, { useState } from 'react';
-import { View, Text, Pressable, TextInput, Animated } from 'react-native';
+import { View, Text, Pressable, Animated } from 'react-native';
 import Glass from '../components/Glass';
 import ScreenHead from '../components/ScreenHead';
 import { T } from '../components/typography';
@@ -58,16 +58,9 @@ function ThemePicker({ theme, current, onPick }) {
   );
 }
 
-export default function SettingsScreen({ theme, settings, setSetting, guideOwned, onReset, onRedeem, proUnlocked, onRestore, onManage }) {
-  const [code, setCode] = useState('');
-  const [redeemMsg, setRedeemMsg] = useState(null);
+export default function SettingsScreen({ theme, settings, setSetting, guideOwned, onReset, proUnlocked, onRestore, onManage }) {
   const [restoreMsg, setRestoreMsg] = useState(null);
 
-  const redeem = () => {
-    const ok = onRedeem && onRedeem(code.trim());
-    setRedeemMsg(ok ? 'Redeemed — Pivot Pro unlocked!' : 'Invalid code.');
-    if (ok) setCode('');
-  };
   const restore = async () => {
     setRestoreMsg('Restoring…');
     const ok = onRestore ? await onRestore() : false;
@@ -90,24 +83,6 @@ export default function SettingsScreen({ theme, settings, setSetting, guideOwned
           <ThemePicker theme={theme} current={settings.theme} onPick={(k) => setSetting('theme', k)} />
           <View style={{ height: 1, backgroundColor: theme.hair2, marginHorizontal: 12, marginTop: 8 }} />
           <SettingsRow theme={theme} label="Minimal UI" sub="Hide HUD chrome during play" control={<PvSwitch theme={theme} on={settings.minimal} onToggle={() => setSetting('minimal', !settings.minimal)} />} last />
-        </Glass>
-
-        <Text style={[T.eyebrow, { color: theme.ink3, paddingHorizontal: 4, paddingBottom: 10, fontSize: 10 }]}>Redeem</Text>
-        <Glass theme={theme} radius={18} pad={14} style={{ marginBottom: 16 }}>
-          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-            <TextInput
-              value={code}
-              onChangeText={setCode}
-              placeholder="PIVOT-XXXX-XXXX"
-              placeholderTextColor={theme.ink3}
-              autoCapitalize="characters"
-              style={[T.mono, { flex: 1, color: theme.ink, fontSize: 13, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 10, borderWidth: 1, borderColor: theme.hair, backgroundColor: theme.glassDk }]}
-            />
-            <Pressable onPress={redeem} style={{ borderRadius: 10, paddingVertical: 11, paddingHorizontal: 16, backgroundColor: theme.accent }}>
-              <Text style={[T.monoSemi, { color: theme.dark ? '#05221E' : '#fff', fontSize: 12 }]}>REDEEM</Text>
-            </Pressable>
-          </View>
-          {redeemMsg && <Text style={[T.sans, { color: redeemMsg.startsWith('Invalid') ? theme.danger : theme.success, fontSize: 11.5, marginTop: 8 }]}>{redeemMsg}</Text>}
         </Glass>
 
         <Text style={[T.eyebrow, { color: theme.ink3, paddingHorizontal: 4, paddingBottom: 10, fontSize: 10 }]}>Purchases</Text>

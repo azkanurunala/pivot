@@ -12,7 +12,6 @@ expo-env.d.ts
 /android
 
 # secrets & local
-GIFT_CODES.txt
 *.p8
 .env*.local
 
